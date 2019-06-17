@@ -1,0 +1,47 @@
+<html>
+  <head>
+    <title>MetaCall image recognition example</title>
+  </head>
+  <body>
+    <form>
+        <label>Paste the url and press the button and the recognition will be appended to the page:</label>
+        <input type="text" id="urlinput" value="https://raw.githubusercontent.com/tensorflow/models/master/research/object_detection/test_images/image1.jpg">
+        <input type="button" onclick="upload()" value="Upload">
+    </form>
+    <script>
+      function encode_utf8(s) {
+        return unescape(encodeURIComponent(s));
+      }
+
+      function upload() {
+        var http = new XMLHttpRequest();
+
+        // This will try to teake username from url
+        var username = window.location.pathname.split('/')[1];
+        var version = 'v1';
+        var deployment = 'metacall/metacall-image-recognition';
+
+        var urlinput = document.getElementById("urlinput").value;
+
+        var postData = '{ "url": "'+urlinput+'" }';
+
+        http.open('POST', `/${username}/${deployment}/${version}/call/run_detection`, true)
+        http.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+
+        http.addEventListener('load', function() {
+          if (this.readyState == 4 && this.status == 200) {
+
+            var decoded_response = encode_utf8(this.responseText);
+      
+            var img = document.createElement('img');
+            img.src = 'data:image/jpeg;base64,' + decoded_response.substring(1, decoded_response.length-1);
+            document.body.appendChild(img);
+
+          }
+        });
+
+        http.send(postData);
+      }
+    </script>
+  </body>
+</html>

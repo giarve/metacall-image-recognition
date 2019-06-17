@@ -16,6 +16,9 @@ from distutils.version import StrictVersion
 from PIL import Image
 import io
 import os
+import base64
+import requests
+
 
 if StrictVersion(tf.__version__) < StrictVersion('1.12.0'):
   raise ImportError('Please upgrade your TensorFlow installation to v1.12.*.')
@@ -82,22 +85,33 @@ def run_inference_for_single_image(image, graph):
 if not os.path.exists(helpers.PATH_TO_FROZEN_GRAPH):
   helpers.download_model()
 
-def test_check_if_output_exists():
-  if os.path.exists(os.path.join('OUTPUT.jpeg')):
-    return True
-  else:
-    return False
+# Read index.html file
+basepath = os.path.dirname(os.path.abspath(__file__))
+
+with open(os.path.join(basepath, 'index.html'), 'r') as f:
+  template = f.read()
 
 def index():
   """Read index.html from file and return it.
-
   Returns:
     Return the index.html content.
   """
+  return template
+
+
+def run_detection(url):
+  """Read image and return its detection
+
+  Returns:
+    Return encoded image as base64 and utf-8 string
+  """
+
+  # Load image from URL
+  response = requests.get(url)
+  image = Image.open(io.BytesIO(response.content))
 
   category_index = label_map_util.create_category_index_from_labelmap(PATH_TO_LABELS, use_display_name=True)
 
-  image = Image.open(os.path.join('image_input.jpg'))
   # the array based representation of the image will be used later in order to prepare the
   # result image with boxes and labels on it.
   image_np = helpers.load_image_into_numpy_array(image)
@@ -116,12 +130,11 @@ def index():
       use_normalized_coordinates=True,
       line_thickness=9)
 
-  im = Image.fromarray(image_np)
-  im.save("OUTPUT.jpeg")
-
   with io.BytesIO() as output:
-    im.save(output, format="JPEG")
+    Image.fromarray(image_np).save(output, format="JPEG")
     contents = output.getvalue()
-    return contents # returns as *bytes* as METACALL handles this type
+    
+    # returns as string instead of bytes (later will have to be decoded in the frontend)
+    return base64.standard_b64encode(contents).decode("utf-8")
 
   return "ERROR"
