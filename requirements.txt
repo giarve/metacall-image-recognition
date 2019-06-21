@@ -4,3 +4,4 @@ Pillow==6.0.0
 lxml==4.3.4
 tensorflow==1.13.1
 protobuf==3.8.0
+requests==2.22.0
