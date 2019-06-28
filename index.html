@@ -19,7 +19,7 @@
         // This will try to teake username from url
         var username = window.location.pathname.split('/')[1];
         var version = 'v1';
-        var deployment = 'metacall/metacall-image-recognition';
+        var deployment = window.location.pathname.split('/')[2]+'/metacall-image-recognition';
 
         var urlinput = document.getElementById("urlinput").value;
 
