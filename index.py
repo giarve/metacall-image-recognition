@@ -19,7 +19,6 @@ import os
 import base64
 import requests
 
-import shutil
 
 if StrictVersion(tf.__version__) < StrictVersion('1.12.0'):
   raise ImportError('Please upgrade your TensorFlow installation to v1.12.*.')
@@ -84,7 +83,6 @@ def run_inference_for_single_image(image, graph):
 
 # if graph doesnt exist, download it
 if not os.path.exists(helpers.PATH_TO_FROZEN_GRAPH):
-  shutil.rmtree(helpers.MODEL_NAME, ignore_errors=True)
   helpers.download_model()
 
 # Read index.html file
